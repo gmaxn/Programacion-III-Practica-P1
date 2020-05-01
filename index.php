@@ -17,7 +17,7 @@ switch ($resource) {
     break;
 
     default:
-        echo 'Requested URL:' . $path_info;
+        echo 'Requested URL:' . $path_info . "\n";
         echo $resource . ' is not a valid resource';
     break;
 }
