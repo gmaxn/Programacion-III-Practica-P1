@@ -4,19 +4,39 @@
     "lastname": "Guelpa",
     "dni": "123456",
     "healthInsurance": "asd",
-    "id": 1588366555,
+    "id": 1588369688,
     "email": "mguelpa@gmail.com",
-    "password": "$2y$10$sq4HZwStYDP9Q6x6eTkS1.CZc76PCmKdQlr0oqn0MrDOhEPXG0HRO",
+    "password": "$2y$10$ULM5Lkgfm9XlC.eKA.S3WOCC2yaGgiwZMty/pCGfCQ8jryIia/O/G",
     "role": "admin"
   },
   {
-    "firstname": "Maximiliano",
-    "lastname": "Guelpa",
+    "firstname": "Peter",
+    "lastname": "Parker",
     "dni": "123456",
     "healthInsurance": "asd",
-    "id": 1588366577,
-    "email": "mguelpa@gmail.com",
-    "password": "$2y$10$IluEf.xfvy8ztaqc10ohbuxZD78yTp7jnVqT4ZPEpELaAv7O3TUjW",
-    "role": "admin"
+    "id": 1588369723,
+    "email": "pparker@gmail.com",
+    "password": "$2y$10$FV2TRlGK1gCGRE3.4hrXZ.iJ9wpu2VmGa3/AKYEYnQG6rMPKBp2IC",
+    "role": "user"
+  },
+  {
+    "firstname": "Mary Jane",
+    "lastname": "Watson",
+    "dni": "123456",
+    "healthInsurance": "asd",
+    "id": 1588371291,
+    "email": "mjwatson@gmail.com",
+    "password": "$2y$10$4GudWWToT1BXm4IIw5BwJuyMA691pbmYbFGlw2upostUkC1FEoyCK",
+    "role": "user"
+  },
+  {
+    "firstname": "John",
+    "lastname": "Doe",
+    "dni": "123456",
+    "healthInsurance": "asd",
+    "id": 1588371401,
+    "email": "jdoe@gmail.com",
+    "password": "$2y$10$nWcLBWzAG4uDVYWLH9x/FOttAaY6/qoM.QEiM2YsMI04yRmQ8D23q",
+    "role": "user"
   }
 ]

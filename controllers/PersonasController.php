@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '\..\entities\Persona.php';
 require_once __DIR__ . '\..\helpers\Response.php';
+require_once __DIR__ . '\..\helpers\Authentication.php';
 
 class PersonasController {
 
@@ -33,9 +34,16 @@ class PersonasController {
                 $personasDto->dni = $_POST['dni'] ?? false;
                 $personasDto->healthInsurance = $_POST['obra_social'] ?? false;
 
-                
-                //print_r($personasDto);
                 echo $this->postPersonasCreate($personasDto);
+            break;
+
+            case 'POST/login':
+
+                $loginDto = new stdClass();
+                $loginDto->email = $_POST['email'] ?? false;
+                $loginDto->password = $_POST['clave'] ?? false;
+
+                echo $this->postPersonasLogin($loginDto);
             break;
                 
             default:
@@ -49,7 +57,6 @@ class PersonasController {
     function postPersonasCreate($personasDto) {
     
         $response = new Response();
-
     
         $persona = new Persona (
             
@@ -61,10 +68,8 @@ class PersonasController {
             $personasDto->dni,
             $personasDto->healthInsurance
         );
-
-
         
-        $persona->save('CSV');
+        $persona->save('JSON');
     
         if($persona) {
     
@@ -74,6 +79,34 @@ class PersonasController {
         
         $response = json_encode($response);
     
+        echo $response;
+    }
+
+    // POST/login
+    function postPersonasLogin($loginDto) {
+
+        $response = new Response();
+
+        try {
+
+            $result = Authentication::validateCredentials($loginDto->email, $loginDto->password);
+
+            if($result) {
+            
+                $jwt = new stdClass();
+                $jwt->token = $result;
+                $response->status = 'succeed';
+                $response->data = $jwt;
+            }
+        }
+        catch(Exception $e) {
+
+            $response->status = 'failure';
+            $response->data = $e->getMessage();
+        }
+
+        $response = json_encode($response);
+
         echo $response;
     }
 }

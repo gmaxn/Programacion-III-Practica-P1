@@ -10,13 +10,13 @@ $resource = '/' . (explode('/', $path_info)[1] ?? '');
 switch ($resource) {
 
     case '/personas':
-
-        //$controller = new PersonasController();
-        //$controller->start();
+        $controller = new PersonasController();
+        $controller->start();
     break;
 
-    case '/alumnos':
-
+    case '/productos':
+        $controller = new ProductsController();
+        $controller->start();
     break;
 
     default:

@@ -24,11 +24,11 @@ class Persona extends User {
     public $dni;
     public $healthInsurance;
 
-    public function __construct($email, $password, $role = 'user', $firstname, $lastname, $dni, $healthInsurance) {
+    public function __construct($email, $password, $role, $firstname, $lastname, $dni, $healthInsurance, $id = null) {
         
         parent:: __construct(
 
-            strtotime('now'), 
+            ($id ?? strtotime('now')), 
             $email, 
             $password, 
             $role
@@ -40,7 +40,7 @@ class Persona extends User {
         $this->healthInsurance = $healthInsurance;
     }
 
-    public function save($saveType = 'CSV') {
+    public function save($saveType = 'Serialized') {
 
         switch($saveType)
         {
@@ -64,6 +64,41 @@ class Persona extends User {
                 PersonasRepository::saveSerialized($filename, $this);
             break;
         }
+    }
+
+    public static function findByEmail($readType, $email)
+    {
+        switch($readType)
+        {
+            case 'Serialized':
+                $filename = __DIR__ . '\..\data\personas.txt';
+                $list = PersonasRepository::readSerialized($filename);
+            break;
+            
+            case 'JSON':
+                $filename = __DIR__ . '\..\data\personas.json';
+                $list = PersonasRepository::readJSON($filename);
+            break;
+            
+            case 'CSV':
+                $filename = __DIR__ . '\..\data\personas.csv';
+                $list = PersonasRepository::readCSV($filename);
+            break;
+
+            default:
+                $filename = __DIR__ . '\..\data\personas.txt';
+                $list = PersonasRepository::readSerialized($filename);
+            break;
+        }
+
+        foreach ($list as $persona) {
+
+            if ($persona->email == $email) {
+
+                return $persona;
+            }
+        }
+        return false;
     }
 
     public function toJSON() {
