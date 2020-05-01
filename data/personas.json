@@ -1,0 +1,22 @@
+[
+  {
+    "firstname": "Maximiliano",
+    "lastname": "Guelpa",
+    "dni": "123456",
+    "healthInsurance": "asd",
+    "id": 1588366555,
+    "email": "mguelpa@gmail.com",
+    "password": "$2y$10$sq4HZwStYDP9Q6x6eTkS1.CZc76PCmKdQlr0oqn0MrDOhEPXG0HRO",
+    "role": "admin"
+  },
+  {
+    "firstname": "Maximiliano",
+    "lastname": "Guelpa",
+    "dni": "123456",
+    "healthInsurance": "asd",
+    "id": 1588366577,
+    "email": "mguelpa@gmail.com",
+    "password": "$2y$10$IluEf.xfvy8ztaqc10ohbuxZD78yTp7jnVqT4ZPEpELaAv7O3TUjW",
+    "role": "admin"
+  }
+]

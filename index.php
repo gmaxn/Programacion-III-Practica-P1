@@ -1,5 +1,6 @@
 <?php
 date_default_timezone_set('America/Argentina/Buenos_Aires');
+require_once __DIR__ . '\controllers\PersonasController.php';
 
 $path_info = $_SERVER['PATH_INFO'] ?? '';
 
@@ -10,6 +11,8 @@ switch ($resource) {
 
     case '/personas':
 
+        //$controller = new PersonasController();
+        //$controller->start();
     break;
 
     case '/alumnos':
@@ -17,7 +20,10 @@ switch ($resource) {
     break;
 
     default:
-        echo 'Requested URL:' . $path_info . "\n";
-        echo $resource . ' is not a valid resource';
+
+        //echo 'Requested URL:' . $path_info . "\n";
+        //echo $resource . ' is not a valid resource';
+        $controller = new PersonasController();
+        $controller->start();
     break;
 }
