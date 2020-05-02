@@ -23,7 +23,7 @@ class PersonasController {
 
         switch($this->getRoute()) {
 
-            case 'POST/usuario':
+            case 'POST/personas/signin':
 
                 $personasDto = new stdClass();
                 $personasDto->email = $_POST['email'] ?? false;
@@ -37,7 +37,7 @@ class PersonasController {
                 echo $this->postPersonasCreate($personasDto);
             break;
 
-            case 'POST/login':
+            case 'POST/personas/login':
 
                 $loginDto = new stdClass();
                 $loginDto->email = $_POST['email'] ?? false;
@@ -57,9 +57,18 @@ class PersonasController {
     function postPersonasCreate($personasDto) {
     
         $response = new Response();
-    
-        $persona = new Persona (
-            
+
+        $validationResult = Persona::validate($personasDto);
+        if(!$validationResult->isValid)
+        {
+            $response->status = 'failure';
+            $response->data = $validationResult->errorMessage;
+            return json_encode($response); 
+        }
+
+
+        $persona = new Persona (          
+
             $personasDto->email,
             password_hash($personasDto->password, PASSWORD_DEFAULT),
             $personasDto->role,
@@ -69,17 +78,14 @@ class PersonasController {
             $personasDto->healthInsurance
         );
         
-        $persona->save('JSON');
-    
-        if($persona) {
-    
-            $response->status = 'succeed';
-            $response->data = $persona;
-        }
+        $persona->save();
+            
+        $response->status = 'succeed';
+        $response->data = $persona;
         
         $response = json_encode($response);
     
-        echo $response;
+        return $response;
     }
 
     // POST/login

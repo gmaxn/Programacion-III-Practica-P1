@@ -75,7 +75,7 @@ class PersonasRepository {
 
         $file = fopen($filename, 'r');
         $stream = fread($file, filesize($filename));
-        $list = unserialize($stream);
+        $list = json_decode($stream);
         fclose($file);
 
         return $list ?? false;

@@ -9,7 +9,7 @@ class Authentication {
 
     public static function validateCredentials($email, $password)
     {
-        $persona =  Persona::findByEmail('CSV', $email);
+        $persona =  Persona::findByEmail($email);
 
         if ($persona) {
 
@@ -43,9 +43,29 @@ class Authentication {
             "email" => $email,
             "firstname" => $firstname,
             "lastname" => $lastname,
-            "user_type" => $role,
+            "role" => $role,
         );
 
         return JWT::encode($payload, getenv('ACCESS_TOKEN_SECRET'));
+    }
+
+    public static function authorize($token) {
+
+
+        try {
+
+            $decoded = JWT::decode($token, getenv('ACCESS_TOKEN_SECRET'), array('HS256'));
+
+            return $decoded;
+        }
+        catch (\Throwable $th) {
+
+            if($th->getMessage() == 'Malformed UTF-8 characters') {
+
+                throw new Exception('Invalid token');
+            }
+            
+            throw new Exception($th->getMessage());
+        }
     }
 }

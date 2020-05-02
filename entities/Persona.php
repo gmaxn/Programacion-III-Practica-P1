@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '\..\repos\PersonasRepository.php';
+require_once __DIR__ . '\..\helpers\ValidationResult.php';
 
 class User {
 
@@ -40,53 +41,52 @@ class Persona extends User {
         $this->healthInsurance = $healthInsurance;
     }
 
-    public function save($saveType = 'Serialized') {
+    public function save() {
 
-        switch($saveType)
+        $filename = getenv('PERSONAS_FILENAME');
+        $ext = strtoupper(array_reverse(explode('.', $filename))[0]);
+
+        switch($ext)
         {
-            case 'Serialized':
-                $filename = __DIR__ . '\..\data\personas.txt';
+            case 'TXT':
                 PersonasRepository::saveSerialized($filename, $this);
             break;
      
             case 'JSON':
-                $filename = __DIR__ . '\..\data\personas.json';
                 PersonasRepository::saveJSON($filename, $this->toJSON());
             break;
 
             case 'CSV':
-                $filename = __DIR__ . '\..\data\personas.csv';
                 PersonasRepository::saveCSV($filename, $this->toCSV());
             break;
 
             default:
-                $filename = __DIR__ . '\..\data\personas.txt';
                 PersonasRepository::saveSerialized($filename, $this);
             break;
         }
     }
 
-    public static function findByEmail($readType, $email)
+    public static function findByEmail($email)
     {
-        switch($readType)
+
+        $filename = getenv('PERSONAS_FILENAME');
+        $ext = strtoupper(array_reverse(explode('.', $filename))[0]);
+
+        switch($ext)
         {
-            case 'Serialized':
-                $filename = __DIR__ . '\..\data\personas.txt';
+            case 'TXT':
                 $list = PersonasRepository::readSerialized($filename);
             break;
             
             case 'JSON':
-                $filename = __DIR__ . '\..\data\personas.json';
                 $list = PersonasRepository::readJSON($filename);
             break;
             
             case 'CSV':
-                $filename = __DIR__ . '\..\data\personas.csv';
                 $list = PersonasRepository::readCSV($filename);
             break;
 
             default:
-                $filename = __DIR__ . '\..\data\personas.txt';
                 $list = PersonasRepository::readSerialized($filename);
             break;
         }
@@ -94,11 +94,34 @@ class Persona extends User {
         foreach ($list as $persona) {
 
             if ($persona->email == $email) {
-
+                
                 return $persona;
             }
         }
         return false;
+    }
+
+    public static function validate($personasDto) {
+
+        $result = new ValidationResult();
+
+        foreach($personasDto as $key => $value) {
+
+            if($value == null || $value == '')
+            {
+                $result->isValid = false;
+                $result->errorMessage = $key . ' is null or empty';
+                $result->status = 'failure';
+
+                return $result;
+            }
+        }
+
+        $result->isValid = true;
+        $result->errorMessage = null;
+        $result->status = 'succeed';
+
+        return $result;
     }
 
     public function toJSON() {

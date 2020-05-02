@@ -1,42 +1,52 @@
 [
   {
-    "firstname": "Maximiliano",
-    "lastname": "Guelpa",
+    "firstname": "Jane",
+    "lastname": "Doe",
     "dni": "123456",
-    "healthInsurance": "asd",
-    "id": 1588369688,
-    "email": "mguelpa@gmail.com",
-    "password": "$2y$10$ULM5Lkgfm9XlC.eKA.S3WOCC2yaGgiwZMty/pCGfCQ8jryIia/O/G",
-    "role": "admin"
-  },
-  {
-    "firstname": "Peter",
-    "lastname": "Parker",
-    "dni": "123456",
-    "healthInsurance": "asd",
-    "id": 1588369723,
-    "email": "pparker@gmail.com",
-    "password": "$2y$10$FV2TRlGK1gCGRE3.4hrXZ.iJ9wpu2VmGa3/AKYEYnQG6rMPKBp2IC",
-    "role": "user"
-  },
-  {
-    "firstname": "Mary Jane",
-    "lastname": "Watson",
-    "dni": "123456",
-    "healthInsurance": "asd",
-    "id": 1588371291,
-    "email": "mjwatson@gmail.com",
-    "password": "$2y$10$4GudWWToT1BXm4IIw5BwJuyMA691pbmYbFGlw2upostUkC1FEoyCK",
+    "healthInsurance": "OSDE 310",
+    "id": 1588438890,
+    "email": "jadoe@gmail.com",
+    "password": "$2y$10$uU6ClEmWpwqK7V5B1HHpX.buFtiivsfjk7OTd7Lyy.XxwPZKBFTx6",
     "role": "user"
   },
   {
     "firstname": "John",
     "lastname": "Doe",
     "dni": "123456",
-    "healthInsurance": "asd",
-    "id": 1588371401,
+    "healthInsurance": "OSDE 310",
+    "id": 1588438920,
     "email": "jdoe@gmail.com",
-    "password": "$2y$10$nWcLBWzAG4uDVYWLH9x/FOttAaY6/qoM.QEiM2YsMI04yRmQ8D23q",
+    "password": "$2y$10$6Csef.3BmaXY84dCmZSc8effHceOtUGRgqMKs6rj78jiREBRjUW4e",
+    "role": "admin"
+  },
+  {
+    "firstname": "Peter",
+    "lastname": "Parker",
+    "dni": "123456",
+    "healthInsurance": "OSDE 310",
+    "id": 1588438959,
+    "email": "pparker@gmail.com",
+    "password": "$2y$10$3dxEHsRWDboHdwLGA5g9bOF5gHFdDXEZr4dD.hI3vHsHfbZ0dViai",
     "role": "user"
+  },
+  {
+    "firstname": "Mary Jane",
+    "lastname": "Watson",
+    "dni": "123456",
+    "healthInsurance": "Galeno",
+    "id": 1588438997,
+    "email": "mjwatson@gmail.com",
+    "password": "$2y$10$C9/Lu0eutY2oorU2Oczu5uQTVVUUOp89RP9h6T1azMqQS/5skOylq",
+    "role": "user"
+  },
+  {
+    "firstname": "Maximiliano",
+    "lastname": "Guelpa",
+    "dni": "123456",
+    "healthInsurance": "OSDE 210",
+    "id": 1588439030,
+    "email": "mguelpa@gmail.com",
+    "password": "$2y$10$JdE19WKzpdMbK0I8wDoyM.mkKbwzIcXCwgMnDZaUzNB./rt.2zd8S",
+    "role": "admin"
   }
 ]
