@@ -32,32 +32,56 @@ class Product {
         $this->image = $this->getImageName($image);
     }
 
-    public function save($saveType = 'Serialized') {
+    public function save() {
 
-        switch($saveType)
+        $filename = getenv('PRODUCTS_FILENAME');
+        $ext = strtoupper(array_reverse(explode('.', $filename))[0]);
+
+        switch($ext)
         {
-            case 'Serialized':
-                $filename = __DIR__ . '\..\data\products.txt';
+            case 'TXT':
                 ProductsRepository::saveSerialized($filename, $this);
             break;
      
             case 'JSON':
-                $filename = __DIR__ . '\..\data\products.json';
                 ProductsRepository::saveJSON($filename, $this->toJSON());
             break;
 
             case 'CSV':
-                $filename = __DIR__ . '\..\data\products.csv';
                 ProductsRepository::saveCSV($filename, $this->toCSV());
             break;
 
             default:
-                throw new Exception('Incompatible save type exception: check line 71 ProductController.php');
-                ProductsRepository::saveSerialized($filename, $this);
+                throw new Exception('Incompatible save type exception');
             break;
         }
     }
+    public static function getProductsList() {
 
+        $filename = getenv('PRODUCTS_FILENAME');
+        $ext = strtoupper(array_reverse(explode('.', $filename))[0]);
+
+        switch($ext)
+        {
+            case 'TXT':
+                $list = PersonasRepository::readSerialized($filename);
+            break;
+            
+            case 'JSON':
+                $list = PersonasRepository::readJSON($filename);
+            break;
+            
+            case 'CSV':
+                $list = PersonasRepository::readCSV($filename);
+            break;
+
+            default:
+                throw new Exception('Incompatible save type exception');
+            break;
+        }
+        
+        return $list;
+    }  
     public static function validate($productDto) {
 
         $result = new ValidationResult();
@@ -80,12 +104,10 @@ class Product {
 
         return $result;
     }
-
     public function toJSON() {
-
+        
         return json_encode($this);
     }
-
     public function toCSV() {
 
         return $this->id . ',' . 
@@ -95,7 +117,6 @@ class Product {
                $this->stock . ',' . 
                $this->image . PHP_EOL; 
     }
-
     public function toFilename($ext) {
 
         return '\\' . $this->type . '-' .

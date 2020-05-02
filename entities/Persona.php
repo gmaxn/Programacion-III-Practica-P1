@@ -65,9 +65,7 @@ class Persona extends User {
             break;
         }
     }
-
-    public static function findByEmail($email)
-    {
+    public static function findByEmail($email) {
 
         $filename = getenv('PERSONAS_FILENAME');
         $ext = strtoupper(array_reverse(explode('.', $filename))[0]);
@@ -87,7 +85,7 @@ class Persona extends User {
             break;
 
             default:
-                $list = PersonasRepository::readSerialized($filename);
+                throw new Exception('Incompatible save type exception');
             break;
         }
 
@@ -100,7 +98,6 @@ class Persona extends User {
         }
         return false;
     }
-
     public static function validate($personasDto) {
 
         $result = new ValidationResult();
@@ -123,21 +120,19 @@ class Persona extends User {
 
         return $result;
     }
-
     public function toJSON() {
-
+        
         return json_encode($this);
     }
-
     public function toCSV() {
-
+        
         return $this->id . ',' . 
-               $this->email . ',' . 
-               $this->password . ',' . 
-               $this->role . ',' . 
-               $this->firstname . ',' . 
-               $this->lastname . ',' .
-               $this->dni . ',' . 
-               $this->healthInsurance . PHP_EOL; 
+        $this->email . ',' . 
+        $this->password . ',' . 
+        $this->role . ',' . 
+        $this->firstname . ',' . 
+        $this->lastname . ',' .
+        $this->dni . ',' . 
+        $this->healthInsurance . PHP_EOL; 
     }
 }

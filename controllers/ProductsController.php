@@ -41,11 +41,10 @@ class ProductsController {
 
             case 'GET/productos/stock':
 
-                $loginDto = new stdClass();
-                $loginDto->email = $_POST['email'] ?? false;
-                $loginDto->password = $_POST['clave'] ?? false;
+                $headers = getallheaders();
+                $jwt = $headers['token'];
 
-                echo $this->postPersonasLogin($loginDto);
+                echo $this->postProductsList($jwt);
             break;
                 
             default:
@@ -55,7 +54,7 @@ class ProductsController {
         }
     }
 
-    // POST/stock
+    // POST/productos/stock
     function postProductsCreate($productDto, $jwt) {
 
         $response = new Response();
@@ -63,13 +62,6 @@ class ProductsController {
         try {
 
             $userContext = Authentication::authorize($jwt);
-
-
-
-            if(!isset($userContext->role))
-            {
-                throw new Exception('Role null or empty');
-            }
 
             if($userContext->role == 'admin')
             {
@@ -104,11 +96,11 @@ class ProductsController {
                 
                 $response = json_encode($response);
             
-                return $response;
+                return json_encode($response);
             }
 
             $response->status = 'failure';
-            $response->data = 'Non authorized user';
+            $response->data = 'Not authorized';
         }
         catch(Exception $e) {
             
@@ -117,25 +109,35 @@ class ProductsController {
         }
 
         return json_encode($response);
-        
     }
 
-    // POST/login
-    function postPersonasLogin($loginDto) {
+    // GET/productos/stock
+    function postProductsList($jwt) {
 
-        $response = new Response();
-
+        $response = new Response('faltan datos');
+        
         try {
 
-            $result = Authentication::validateCredentials($loginDto->email, $loginDto->password);
+            $userContext = Authentication::authorize($jwt);
 
-            if($result) {
-            
-                $jwt = new stdClass();
-                $jwt->token = $result;
-                $response->status = 'succeed';
-                $response->data = $jwt;
+            if(!isset($userContext->role))
+            {
+                throw new Exception('Role null or empty');
             }
+
+            if($userContext->role == 'admin')
+            {
+
+                $personas = Product::getProductsList();
+
+                $response->status = 'succeed';
+                $response->data = $personas;
+
+                return json_encode($response);
+            }
+
+            $response->status = 'failure';
+            $response->data = 'Not authorized';
         }
         catch(Exception $e) {
 
@@ -143,8 +145,6 @@ class ProductsController {
             $response->data = $e->getMessage();
         }
 
-        $response = json_encode($response);
-
-        echo $response;
+        return json_encode($response);
     }
 }
