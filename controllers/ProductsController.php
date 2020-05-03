@@ -104,9 +104,9 @@ class ProductsController {
                 
                 $product->save('JSON');
                 
-                //$photoUploader = new PhotoUploader(getenv('DEFAULT_IMG_DIR'), getenv('DEFAULT_IMG_DIR'), );
                 PhotoUploader::uploadPhoto($productDto->image['tmp_name'], $product->image);
-                //PhotoUploader::addWaterMark($$product->image);
+                PhotoUploader::addWaterMark($product->image,getenv('PHOTO_WATERMARK_DIR'), $product->image, true);
+                PhotoUploader::crop($product->image, $product->image, 600, 600, true);
             
                 if($product) {
             
