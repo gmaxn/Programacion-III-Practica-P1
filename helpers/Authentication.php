@@ -7,8 +7,7 @@ use \Firebase\JWT\JWT;
 
 class Authentication {
 
-    public static function validateCredentials($email, $password)
-    {
+    public static function validateCredentials($email, $password) {
         $persona =  Persona::findByEmail($email);
 
         if ($persona) {
@@ -18,6 +17,7 @@ class Authentication {
             if (password_verify($password, $hashedpass)) {
 
                 return self::generateToken(
+                    $persona->id,
                     $persona->email,
                     $persona->firstname,
                     $persona->lastname,
@@ -34,12 +34,12 @@ class Authentication {
 
         throw new Exception('email not registered');
     }
-
-    private static function generateToken($email, $firstname, $lastname, $role, $iat, $exp) {
+    private static function generateToken($userId, $email, $firstname, $lastname, $role, $iat, $exp) {
 
         $payload = array(
             "iat" => $iat,
             "exp" => $exp,
+            "userId" => $userId,
             "email" => $email,
             "firstname" => $firstname,
             "lastname" => $lastname,
@@ -48,9 +48,7 @@ class Authentication {
 
         return JWT::encode($payload, getenv('ACCESS_TOKEN_SECRET'));
     }
-
     public static function authorize($token) {
-
 
         try {
 

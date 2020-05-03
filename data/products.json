@@ -1,18 +1,1 @@
-[
-  {
-    "id": 1588440766,
-    "type": "Vacuna",
-    "brand": "Byer",
-    "price": "2450,00",
-    "stock": "10",
-    "image": "C:\\xampp\\htdocs\\Programacion-III-Practica-P1\\config\\..\\data\\img\\Vacuna-1588440766-Byer-02052020_232pm.png"
-  },
-  {
-    "id": 1588441229,
-    "type": "Vacuna",
-    "brand": "Byer",
-    "price": "2450,00",
-    "stock": "10",
-    "image": "C:\\xampp\\htdocs\\Programacion-III-Practica-P1\\config\\..\\data\\img\\Vacuna-1588441229-Byer-02052020_240pm.png"
-  }
-]
+[{"id":1588467859,"type":"Vacuna","brand":"Byer","price":2450,"stock":10,"image":"C:\\xampp\\htdocs\\Programacion-III-Practica-P1\\config\\..\\data\\img\\Vacuna-1588467859-Byer-02052020_1004pm.png"},{"id":1588468300,"type":"Madicamento","brand":"Byer","price":3990,"stock":10,"image":"C:\\xampp\\htdocs\\Programacion-III-Practica-P1\\config\\..\\data\\img\\Madicamento-1588468300-Byer-02052020_1011pm.png"},{"id":1588468390,"type":"Madicamento","brand":"Bago","price":1564,"stock":10,"image":"C:\\xampp\\htdocs\\Programacion-III-Practica-P1\\config\\..\\data\\img\\Madicamento-1588468390-Bago-02052020_1013pm.png"},{"id":1588468634,"type":"Madicamento","brand":"Vick","price":468,"stock":10,"image":"C:\\xampp\\htdocs\\Programacion-III-Practica-P1\\config\\..\\data\\img\\Madicamento-1588468634-Vick-02052020_1017pm.png"},{"id":1588468674,"type":"Madicamento","brand":"Ibupirac","price":4868.2,"stock":10,"image":"C:\\xampp\\htdocs\\Programacion-III-Practica-P1\\config\\..\\data\\img\\Madicamento-1588468674-Ibupirac-02052020_1017pm.png"}]

@@ -17,3 +17,6 @@ putenv('PERSONAS_FILENAME=' . __DIR__ . '\..\data\personas.json');
 
 // PRODUCTS_DATA_DIR
 putenv('PRODUCTS_FILENAME=' . __DIR__ . '\..\data\products.json');
+
+// ORDERS_DATA_DIR
+putenv('ORDERS_FILENAME=' . __DIR__ . '\..\data\orders.txt');

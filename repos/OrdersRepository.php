@@ -1,6 +1,6 @@
 <?php
 
-class ProductsRepository {
+class OrdersRepository {
 
     public static function saveSerialized($filename, $data) {
         
@@ -22,7 +22,6 @@ class ProductsRepository {
 
         return $result ?? false;
     }
-
     public static function saveJSON($filename, $data) {
 
         $list = array();
@@ -43,7 +42,6 @@ class ProductsRepository {
         
         return $result ?? false;
     }
-
     public static function saveCSV($filename, $data) {
 
         $file = fopen($filename, 'a');
@@ -51,7 +49,6 @@ class ProductsRepository {
         fclose($file);
         return $result ?? false;
     }
-
     public static function readSerialized($filename) {
 
         if(!file_exists($filename))
@@ -66,7 +63,6 @@ class ProductsRepository {
 
         return $list ?? false;
     }
-
     public static function readJSON($filename) {
 
         if(!file_exists($filename)) {
@@ -81,7 +77,6 @@ class ProductsRepository {
 
         return $list ?? false;
     }
-
     public static function readCSV($filename) {
 
         if(!file_exists($filename)) {
@@ -116,48 +111,6 @@ class ProductsRepository {
 
         return $list;
     }
-
-    public static function updateSerialized($filename, $list) {
-        
-        if (file_exists($filename)) {
-
-            $file = fopen($filename, 'w');
-            $result = fwrite($file, serialize($list));
-            fclose($file);
-        }
-
-        return $result ?? false;
-    }
-
-    public static function updateJSON($filename, $data) {
-
-        $list = array();
-
-        if (file_exists($filename)) {
-
-            $file = fopen($filename, 'r');
-            $stream = fread($file, filesize($filename));
-            $list = json_decode($stream);
-            fclose($file);
-        }
-        
-        array_push($list, json_decode($data));
-        
-        $file = fopen($filename, 'w');
-        $result = fwrite($file, json_encode($list));
-        fclose($file);
-        
-        return $result ?? false;
-    }
-
-    public static function updateCSV($filename, $data) {
-
-        $file = fopen($filename, 'a');
-        $result = fwrite($file, $data);
-        fclose($file);
-        return $result ?? false;
-    }
-
     private static function rawCSVSerializer($dataSet) {
 
         $result = array();
@@ -169,7 +122,6 @@ class ProductsRepository {
                 $data[2],
                 $data[3],
                 $data[4],
-                $data[5],
                 $data[0]
             );
 
@@ -177,5 +129,5 @@ class ProductsRepository {
         }
 
         return $result;
-    }
+    }   
 }

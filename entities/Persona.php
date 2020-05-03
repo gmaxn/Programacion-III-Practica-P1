@@ -98,6 +98,39 @@ class Persona extends User {
         }
         return false;
     }
+    public static function findById($id) {
+
+        $filename = getenv('PERSONAS_FILENAME');
+        $ext = strtoupper(array_reverse(explode('.', $filename))[0]);
+
+        switch($ext)
+        {
+            case 'TXT':
+                $list = PersonasRepository::readSerialized($filename);
+            break;
+            
+            case 'JSON':
+                $list = PersonasRepository::readJSON($filename);
+            break;
+            
+            case 'CSV':
+                $list = PersonasRepository::readCSV($filename);
+            break;
+
+            default:
+                throw new Exception('Incompatible save type exception');
+            break;
+        }
+
+        foreach ($list as $persona) {
+
+            if ($persona->id == $id) {
+                
+                return $persona;
+            }
+        }
+        return false;
+    }
     public static function validate($personasDto) {
 
         $result = new ValidationResult();

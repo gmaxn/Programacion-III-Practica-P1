@@ -3,6 +3,9 @@ require_once __DIR__ . '\..\entities\Product.php';
 require_once __DIR__ . '\..\helpers\Response.php';
 require_once __DIR__ . '\..\helpers\Authentication.php';
 require_once __DIR__ . '\..\helpers\PhotoUploader.php';
+require_once __DIR__ . '\..\entities\Order.php';
+require_once __DIR__ . '\..\entities\OrderItem.php';
+
 
 class ProductsController {
 
@@ -46,6 +49,21 @@ class ProductsController {
 
                 echo $this->postProductsList($jwt);
             break;
+
+            case 'POST/productos/ventas':
+
+                $headers = getallheaders();
+                $jwt = $headers['token'];
+
+                $orderDto = new stdClass();
+                $orderDto->productId = $_POST['id_producto'] ?? false;
+                $orderDto->quantity = $_POST['cantidad'] ?? false;
+                $orderDto->user = $_POST['ususario'] ?? false;
+
+                echo $this->postOrderGenerate($jwt, $orderDto);
+            break;
+
+
                 
             default:
 
@@ -53,7 +71,6 @@ class ProductsController {
             break;
         }
     }
-
     // POST/productos/stock
     function postProductsCreate($productDto, $jwt) {
 
@@ -93,8 +110,6 @@ class ProductsController {
                     $response->status = 'succeed';
                     $response->data = $product;
                 }
-                
-                $response = json_encode($response);
             
                 return json_encode($response);
             }
@@ -110,11 +125,10 @@ class ProductsController {
 
         return json_encode($response);
     }
-
     // GET/productos/stock
     function postProductsList($jwt) {
 
-        $response = new Response('faltan datos');
+        $response = new Response();
         
         try {
 
@@ -138,6 +152,47 @@ class ProductsController {
 
             $response->status = 'failure';
             $response->data = 'Not authorized';
+        }
+        catch(Exception $e) {
+
+            $response->status = 'failure';
+            $response->data = $e->getMessage();
+        }
+
+        return json_encode($response);
+    }
+    // POST/productos/ventas
+    function postOrderGenerate($jwt, $orderDto) {
+
+        $response = new Response();
+        
+        try {
+
+            $userContext = Authentication::authorize($jwt);
+
+            // 1. check stock --> products entity
+            $product = Product::getProductById($orderDto->productId);         
+            if($product->stock >= $orderDto->quantity) {
+
+                // 2. generate order --> order entity
+                $order = new Order(
+                    $userContext->userId,
+                    array(new OrderItem(
+                        $product->id,
+                        $product->price,  
+                        $orderDto->quantity
+                    )));
+
+                $order->save();
+            }
+
+            // 3. reduce stock --> products entity
+            Product::updateStock($product->id, $orderDto->quantity);
+
+            $response->status = 'succeed';
+            $response->data = $order;
+
+            return json_encode($response);
         }
         catch(Exception $e) {
 

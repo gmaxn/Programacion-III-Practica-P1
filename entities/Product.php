@@ -1,7 +1,5 @@
 <?php
-
 require_once __DIR__ . '\..\repos\ProductsRepository.php';
-
 
 class Product {
 
@@ -27,8 +25,8 @@ class Product {
         $this->id = ($id ?? strtotime('now'));
         $this->type = $type;
         $this->brand = $brand;
-        $this->price = $price;
-        $this->stock = $stock;
+        $this->price = (float) $price;
+        $this->stock = (int) $stock;
         $this->image = $this->getImageName($image);
     }
 
@@ -56,6 +54,31 @@ class Product {
             break;
         }
     }
+    public function update($list) {
+
+        $filename = getenv('PRODUCTS_FILENAME');
+        $ext = strtoupper(array_reverse(explode('.', $filename))[0]);
+
+        switch($ext)
+        {
+            case 'TXT':
+                ProductsRepository::updateSerialized($filename, $list);
+            break;
+     
+            case 'JSON':
+                ProductsRepository::updateJSON($filename, $list);
+            break;
+
+            case 'CSV':
+                ProductsRepository::updateCSV($filename, $list);
+            break;
+
+            default:
+                throw new Exception('Incompatible save type exception');
+            break;
+        }
+
+    }
     public static function getProductsList() {
 
         $filename = getenv('PRODUCTS_FILENAME');
@@ -81,7 +104,52 @@ class Product {
         }
         
         return $list;
-    }  
+    }
+    public static function getProductById($productId) {
+
+        $filename = getenv('PRODUCTS_FILENAME');
+        $ext = strtoupper(array_reverse(explode('.', $filename))[0]);
+
+        switch($ext)
+        {
+            case 'TXT':
+                $list = ProductsRepository::readSerialized($filename);
+            break;
+            
+            case 'JSON':
+                $list = ProductsRepository::readJSON($filename);
+            break;
+            
+            case 'CSV':
+                $list = ProductsRepository::readCSV($filename);
+            break;
+
+            default:
+                throw new Exception('Incompatible save type exception');
+            break;
+        }
+        
+        foreach ($list as $product) {
+
+            if ($product->id == $productId) {
+                
+                return $product;
+            }
+        }
+        return false;
+    }
+    public static function updateStock($productId, $stock) {
+
+        $productList = self::getProductsList();
+
+        foreach($productList as $product) {
+
+            if($product->id == $productId) {
+
+                $product->stock = $stock;
+            }
+        }
+    }
     public static function validate($productDto) {
 
         $result = new ValidationResult();
