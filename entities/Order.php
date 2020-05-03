@@ -54,7 +54,63 @@ class Order {
             break;
         }
     }
-    
+    public static function getOrderList() {
+
+        $filename = getenv('ORDERS_FILENAME');
+        $ext = strtoupper(array_reverse(explode('.', $filename))[0]);
+
+        switch($ext)
+        {
+            case 'TXT':
+                $list = OrdersRepository::readSerialized($filename);
+            break;
+            
+            case 'JSON':
+                $list = OrdersRepository::readJSON($filename);
+            break;
+            
+            case 'CSV':
+                $list = OrdersRepository::readCSV($filename);
+            break;
+
+            default:
+                throw new Exception('Incompatible save type exception');
+            break;
+        }
+        
+        return $list;
+    }
+    public static function getOrdersByUserType($userContext) {
+
+        $list = array();
+        
+        if($userContext->role == 'admin')
+        {
+            $list = self::getOrderList();
+        }
+
+        if($userContext->role == 'user')
+        {
+            $list = self::fetchOrdersByUserId($userContext->userId);
+        }
+
+        return $list;
+    }
+    public static function fetchOrdersByUserId($userId) {
+
+        $orderList = Order::getOrderList();
+
+        $filteredList = array();
+
+        foreach($orderList as $order) {
+
+            if($order->userId == $userId) {
+
+                array_push($filteredList, $order);
+            }
+        }
+        return $filteredList;
+    }  
     public function toJSON() {
         
         return json_encode($this);

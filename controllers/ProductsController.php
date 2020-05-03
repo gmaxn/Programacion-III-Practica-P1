@@ -59,14 +59,17 @@ class ProductsController {
                 $orderDto->productId = $_POST['id_producto'] ?? false;
                 $orderDto->quantity = $_POST['cantidad'] ?? false;
                 $orderDto->user = $_POST['ususario'] ?? false;
+                echo $this->postOrdersGenerate($jwt, $orderDto);
+            break;
+            
+            case 'GET/productos/ventas':
 
-                echo $this->postOrderGenerate($jwt, $orderDto);
+                $headers = getallheaders();
+                $jwt = $headers['token'];
+                echo $this->getOrders($jwt);
             break;
 
-
-                
             default:
-
                 echo 'Metodo no esperado';
             break;
         }
@@ -162,7 +165,7 @@ class ProductsController {
         return json_encode($response);
     }
     // POST/productos/ventas
-    function postOrderGenerate($jwt, $orderDto) {
+    function postOrdersGenerate($jwt, $orderDto) {
 
         $response = new Response();
         
@@ -193,6 +196,30 @@ class ProductsController {
             $response->data = $order;
 
             return json_encode($response);
+        }
+        catch(Exception $e) {
+
+            $response->status = 'failure';
+            $response->data = $e->getMessage();
+        }
+
+        return json_encode($response);
+    }
+    // POST/productos/ventas
+    function getOrders($jwt) {
+
+        $response = new Response();
+        
+        try {
+
+            $userContext = Authentication::authorize($jwt);
+
+            $orders = Order::getOrdersByUserType($userContext);
+
+            $response->status = 'succeed';
+            $response->data = $orders;
+
+
         }
         catch(Exception $e) {
 
