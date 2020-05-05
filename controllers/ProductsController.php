@@ -7,226 +7,213 @@ require_once __DIR__ . '\..\entities\Order.php';
 require_once __DIR__ . '\..\entities\OrderItem.php';
 
 
-class ProductsController {
-
+class ProductsController
+{
     private $path_info;
     private $request_method;
 
-    function getRoute() {
+    function getRoute()
+    {
 
         return $this->request_method . $this->path_info;
     }
-
-    function __construct() {
+    function __construct()
+    {
 
         $this->path_info = $_SERVER['PATH_INFO'] ?? '';
         $this->request_method = $_SERVER['REQUEST_METHOD'] ?? '';
     }
+    function start()
+    {
 
-    function start() {
-
-        switch($this->getRoute()) {
+        switch ($this->getRoute()) {
 
             case 'POST/productos/stock':
 
                 $headers = getallheaders();
                 $jwt = $headers['token'];
 
-                $productDto = new stdClass();
-                $productDto->type = $_POST['producto'] ?? false;
-                $productDto->brand = $_POST['marca'] ?? false;
-                $productDto->price = $_POST['precio'] ?? false;
-                $productDto->stock = $_POST['stock'] ?? false;
-                $productDto->image = $_FILES['foto'] ?? null;
+                $type = $_POST['producto'] ?? false;
+                $brand = $_POST['marca'] ?? false;
+                $price = $_POST['precio'] ?? false;
+                $stock = $_POST['stock'] ?? false;
+                $image = $_FILES['foto'] ?? null;
 
-                echo $this->postProductsCreate($productDto, $jwt);
-            break;
+                echo $this->postProductsCreate($type, $brand, $price, $stock, $image, $jwt);
+                break;
 
             case 'GET/productos/stock':
 
                 $headers = getallheaders();
                 $jwt = $headers['token'];
 
-                echo $this->postProductsList($jwt);
-            break;
+                echo $this->getProductsList($jwt);
+                break;
 
             case 'POST/productos/ventas':
 
                 $headers = getallheaders();
                 $jwt = $headers['token'];
 
-                $orderDto = new stdClass();
-                $orderDto->productId = $_POST['id_producto'] ?? false;
-                $orderDto->quantity = $_POST['cantidad'] ?? false;
-                $orderDto->user = $_POST['ususario'] ?? false;
-                echo $this->postOrdersGenerate($jwt, $orderDto);
-            break;
-            
+                $productId = $_POST['id_producto'] ?? false;
+                $quantity = $_POST['cantidad'] ?? false;
+                $email = $_POST['ususario'] ?? false;
+                echo $this->postOrdersGenerate($productId, $quantity, $email, $jwt);
+                break;
+
             case 'GET/productos/ventas':
 
                 $headers = getallheaders();
                 $jwt = $headers['token'];
                 echo $this->getOrders($jwt);
-            break;
+                break;
 
             default:
                 echo 'Metodo no esperado';
-            break;
+                break;
         }
     }
     // POST/productos/stock
-    function postProductsCreate($productDto, $jwt) {
+    function postProductsCreate($type, $brand, $price, $stock, $image, $jwt)
+    {
+        $validationResult = $this->postProductsCreateValidation($type, $brand, $price, $stock, $image);
+        $response = new Response('failure', $validationResult->errorMessage);
 
-        $response = new Response();
+        if (!$validationResult->isValid) {
 
-        try {
+            try {
 
-            $userContext = Authentication::authorize($jwt);
+                $authorizationResult = Authentication::authorize($jwt);
+                $response = new Response('failure', $authorizationResult->errorMessage);
 
-            if($userContext->role == 'admin')
-            {
+                if ($authorizationResult->data->userContext->role == 'admin') {
 
-                $validationResult = Product::validate($productDto);
-                if(!$validationResult->isValid)
-                {
-                    $response->status = 'failure';
-                    $response->data = $validationResult->errorMessage;
-                    return json_encode($response); 
-                }
-                
-                $product = new Product (          
-                    $productDto->type,
-                    $productDto->brand,
-                    $productDto->price,
-                    $productDto->stock,
-                    $productDto->image
-                );
-                
-                $product->save('JSON');
-                
-                PhotoUploader::uploadPhoto($productDto->image['tmp_name'], $product->image);
-                PhotoUploader::addWaterMark($product->image,getenv('PHOTO_WATERMARK_DIR'), $product->image, true);
-                PhotoUploader::crop($product->image, $product->image, 600, 600, true);
-            
-                if($product) {
-            
+                    $product = new Product(
+                        $type,
+                        $brand,
+                        $price,
+                        $stock,
+                        $image
+                    );
+
+                    $product->save('JSON');
+
+                    PhotoUploader::uploadPhoto($image['tmp_name'], $product->image);
+                    PhotoUploader::addWaterMark($product->image, getenv('PHOTO_WATERMARK_DIR'), $product->image, true);
+                    PhotoUploader::crop($product->image, $product->image, 600, 600, true);
+
                     $response->status = 'succeed';
                     $response->data = $product;
                 }
-            
-                return json_encode($response);
-            }
+            } catch (Exception $e) {
 
-            $response->status = 'failure';
-            $response->data = 'Not authorized';
-        }
-        catch(Exception $e) {
-            
-            $response->status = 'failure';
-            $response->data = $e->getMessage();
+                $response = new Response('failure', $e->getMessage());
+            }
         }
 
         return json_encode($response);
     }
     // GET/productos/stock
-    function postProductsList($jwt) {
-
-        $response = new Response();
-        
+    function getProductsList($jwt)
+    {
         try {
 
-            $userContext = Authentication::authorize($jwt);
+            $authorizationResult = Authentication::authorize($jwt);
+            $response = new Response('failure', $authorizationResult->errorMessage);
 
-            if(!isset($userContext->role))
-            {
-                throw new Exception('Role null or empty');
-            }
-
-            if($userContext->role == 'admin')
-            {
-
+            if ($authorizationResult->data->userContext->role == 'admin') {
                 $personas = Product::getProductsList();
 
                 $response->status = 'succeed';
                 $response->data = $personas;
-
-                return json_encode($response);
             }
+        } catch (Exception $e) {
 
-            $response->status = 'failure';
-            $response->data = 'Not authorized';
-        }
-        catch(Exception $e) {
-
-            $response->status = 'failure';
-            $response->data = $e->getMessage();
+            $response = new Response('failure', $e->getMessage());
         }
 
         return json_encode($response);
     }
     // POST/productos/ventas
-    function postOrdersGenerate($jwt, $orderDto) {
-
-        $response = new Response();
-        
+    function postOrdersGenerate($productId, $quantity, $email, $jwt)
+    {
         try {
 
-            $userContext = Authentication::authorize($jwt);
+            $authorizationResult = Authentication::authorize($jwt);
+            $response = new Response('failure', $authorizationResult->errorMessage);
 
-            // 1. check stock --> products entity
-            $product = Product::getProductById($orderDto->productId);         
-            if($product->stock >= $orderDto->quantity) {
 
-                // 2. generate order --> order entity
-                $order = new Order(
-                    $userContext->userId,
-                    array(new OrderItem(
-                        $product->id,
-                        $product->price,  
-                        $orderDto->quantity
-                    )));
+            if ($authorizationResult->isValid) {
+                // 1. check stock --> products entity
+                $product = Product::getProductById($productId);
 
-                $order->save();
+                if ($product->stock >= $quantity) {
+
+                    // 2. generate order --> order entity
+                    $order = new Order(
+                        $authorizationResult->data->userContext->userId,
+                        array(new OrderItem(
+                            $product->id,
+                            $product->price,
+                            (int) $quantity
+                        ))
+                    );
+                    $order->save();
+                }
+
+                // 3. reduce stock --> products entity
+                Product::updateStock($product->id, $product->stock - $quantity);
+
+                $response = new Response('succeed', $order);
             }
+        } catch (Exception $e) {
 
-            // 3. reduce stock --> products entity
-            Product::updateStock($product->id, $orderDto->quantity);
-
-            $response->status = 'succeed';
-            $response->data = $order;
-
-            return json_encode($response);
-        }
-        catch(Exception $e) {
-
-            $response->status = 'failure';
-            $response->data = $e->getMessage();
+            $response = new Response('failure', $e->getMessage());
         }
 
         return json_encode($response);
     }
     // POST/productos/ventas
-    function getOrders($jwt) {
-
-        $response = new Response();
-        
+    function getOrders($jwt)
+    {
         try {
 
-            $userContext = Authentication::authorize($jwt);
+            $authorizationResult = Authentication::authorize($jwt);
+            $response = new Response('failure', $authorizationResult->errorMessage);
 
-            $orders = Order::getOrdersByUserType($userContext);
+            if ($authorizationResult->isValid) {
 
-            $response->status = 'succeed';
-            $response->data = $orders;
+                $orders = Order::getOrdersByUserType($authorizationResult->data->userContext);
 
+                $response = new Response('succeed', $orders);
+            }
+        } catch (Exception $e) {
 
+            $response = new Response('failure', $e->getMessage());
         }
-        catch(Exception $e) {
-
-            $response->status = 'failure';
-            $response->data = $e->getMessage();
-        }
-
         return json_encode($response);
+    }
+    /////////////////////////
+    // REQUEST VALIDATIONS //
+    /////////////////////////
+    private function postProductsCreateValidation($type, $brand, $price, $stock, $image)
+    {
+        $validationResults = array(
+
+            Validator::in($type, array('vacuna', 'medicamento')),
+            Validator::required($brand, 'brand'),
+            Validator::prices($price),
+            Validator::units($stock)
+        );
+
+        foreach ($validationResults as $result) {
+
+            if (!$result->isValid) {
+
+                return $result;
+            }
+        }
+
+        return new ValidationResult('succeed', 'is valid request', true);
     }
 }

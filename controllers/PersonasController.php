@@ -2,117 +2,140 @@
 require_once __DIR__ . '\..\entities\Persona.php';
 require_once __DIR__ . '\..\helpers\Response.php';
 require_once __DIR__ . '\..\helpers\Authentication.php';
+require_once __DIR__ . '\..\helpers\Validator.php';
 
-class PersonasController {
-
+class PersonasController
+{
     private $path_info;
     private $request_method;
 
-    function getRoute() {
-
-        return $this->request_method . $this->path_info;
-    }
-
-    function __construct() {
+    function __construct()
+    {
 
         $this->path_info = $_SERVER['PATH_INFO'] ?? '';
         $this->request_method = $_SERVER['REQUEST_METHOD'] ?? '';
     }
-
-    function start() {
-
-        switch($this->getRoute()) {
-
+    function getRoute()
+    {
+        return $this->request_method . $this->path_info;
+    }
+    function start()
+    {
+        switch ($this->getRoute()) 
+        {
             case 'POST/personas/signin':
 
-                $personasDto = new stdClass();
-                $personasDto->email = $_POST['email'] ?? false;
-                $personasDto->password = $_POST['clave'] ?? false;
-                $personasDto->role = $_POST['tipo'] ?? false;
-                $personasDto->firstname = $_POST['nombre'] ?? false;
-                $personasDto->lastname = $_POST['apellido'] ?? false;
-                $personasDto->dni = $_POST['dni'] ?? false;
-                $personasDto->healthInsurance = $_POST['obra_social'] ?? false;
+                $email = $_POST['email'] ?? null;
+                $password = $_POST['clave'] ?? null;
+                $role = $_POST['tipo'] ?? null;
+                $firstname = $_POST['nombre'] ?? null;
+                $lastname = $_POST['apellido'] ?? null;
+                $dni = $_POST['dni'] ?? null;
+                $healthInsurance = $_POST['obra_social'] ?? null;
 
-                echo $this->postPersonasCreate($personasDto);
-            break;
+                echo $this->postPersonasCreate($email, $password, $role, $firstname, $lastname, $dni, $healthInsurance);
+                break;
 
             case 'POST/personas/login':
 
-                $loginDto = new stdClass();
-                $loginDto->email = $_POST['email'] ?? false;
-                $loginDto->password = $_POST['clave'] ?? false;
+                $email = $_POST['email'] ?? false;
+                $password = $_POST['clave'] ?? false;
 
-                echo $this->postPersonasLogin($loginDto);
-            break;
-                
+                echo $this->postPersonasLogin($email, $password);
+                break;
+
             default:
-
                 echo 'Metodo no esperado';
-            break;
+                break;
         }
     }
-
     // POST/personas/signin
-    function postPersonasCreate($personasDto) {
-    
-        $response = new Response();
+    function postPersonasCreate($email, $password, $role, $firstname, $lastname, $dni, $healthInsurance)
+    {
+        $validationResult = $this->createValidation($email, $password, $role, $firstname, $lastname, $dni, $healthInsurance);
+        $response = new Response('failure', $validationResult->errorMessage);
 
-        $validationResult = Persona::validate($personasDto);
-        if(!$validationResult->isValid)
-        {
-            $response->status = 'failure';
-            $response->data = $validationResult->errorMessage;
-            return json_encode($response); 
+        if ($validationResult->isValid) {
+
+            $persona = new Persona(
+                $email,
+                password_hash($password, PASSWORD_DEFAULT),
+                $role,
+                $firstname,
+                $lastname,
+                $dni,
+                $healthInsurance
+            );
+
+            $persona->save();
+
+            $response = new Response();
+            $response->status = 'succeed';
+            $response->data = $persona;
         }
 
-
-        $persona = new Persona (          
-
-            $personasDto->email,
-            password_hash($personasDto->password, PASSWORD_DEFAULT),
-            $personasDto->role,
-            $personasDto->firstname, 
-            $personasDto->lastname,
-            $personasDto->dni,
-            $personasDto->healthInsurance
-        );
-        
-        $persona->save();
-            
-        $response->status = 'succeed';
-        $response->data = $persona;
-        
-        $response = json_encode($response);
-    
-        return $response;
+        return json_encode($response);
     }
+    // POST/personas/login
+    function postPersonasLogin($email, $password)
+    {
+        $validationResult = $this->loginValidation($email, $password);
+        $response = new Response('failure', $validationResult->errorMessage);
 
-    // POST/login
-    function postPersonasLogin($loginDto) {
+        if ($validationResult->isValid) {
 
-        $response = new Response();
+            try {
 
-        try {
-
-            $result = Authentication::validateCredentials($loginDto->email, $loginDto->password);
-
-            if($result) {
-            
-                $jwt = new stdClass();
-                $jwt->token = $result;
+                $token = Authentication::authenticate($email, $password);
                 $response->status = 'succeed';
-                $response->data = $jwt;
+                $response->data = array('token' => $token);
+
+            } catch (Exception $e) {
+
+                $response = new Response('failure', $e->getMessage());
             }
         }
-        catch(Exception $e) {
 
-            $response->status = 'failure';
-            $response->data = $e->getMessage();
+        return  json_encode($response);
+    }
+    /////////////////////////
+    // REQUEST VALIDATIONS //
+    /////////////////////////
+    private function createValidation($email, $password, $role, $firstname, $lastname, $dni, $healthInsurance)
+    {
+        $validationResults = array(
+
+            Validator::emails($email),
+            Validator::passwords($password),
+            Validator::in($role, array('admin', 'user')),
+            Validator::names($firstname),
+            Validator::names($lastname),
+            Validator::dnis($dni)
+        );
+
+        foreach ($validationResults as $result) {
+            if (!$result->isValid) {
+                return $result;
+            }
         }
 
-        $response = json_encode($response);
+        return new ValidationResult('succeed', 'is valid request', true);
+    }
+    private function loginValidation($email, $password)
+    {
 
-        echo $response;
+        $validationResults = array(
+
+            Validator::emails($email),
+            Validator::passwords($password)
+        );
+
+        foreach ($validationResults as $result) {
+            if (!$result->isValid) {
+                return $result;
+            }
+        }
+
+        return new ValidationResult('succeed', 'is valid request', true);
     }
 }

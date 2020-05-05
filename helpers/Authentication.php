@@ -5,9 +5,10 @@ require_once __DIR__ . '\..\config\environment.php';
 
 use \Firebase\JWT\JWT;
 
-class Authentication {
-
-    public static function validateCredentials($email, $password) {
+class Authentication
+{
+    public static function authenticate($email, $password)
+    {
         $persona =  Persona::findByEmail($email);
 
         if ($persona) {
@@ -23,9 +24,8 @@ class Authentication {
                     $persona->lastname,
                     $persona->role,
                     strtotime('now'),
-                    strtotime('now') +60
+                    strtotime('now') + 60
                 );
-
             } else {
 
                 throw new Exception('email and password do not match');
@@ -34,7 +34,8 @@ class Authentication {
 
         throw new Exception('email not registered');
     }
-    private static function generateToken($userId, $email, $firstname, $lastname, $role, $iat, $exp) {
+    private static function generateToken($userId, $email, $firstname, $lastname, $role, $iat, $exp)
+    {
 
         $payload = array(
             "iat" => $iat,
@@ -48,22 +49,44 @@ class Authentication {
 
         return JWT::encode($payload, getenv('ACCESS_TOKEN_SECRET'));
     }
-    public static function authorize($token) {
+    public static function authorize($token)
+    {
+        $authorizationResult = new AuthorizationResult('failure', 'unauthorized', false);
 
         try {
 
-            $decoded = JWT::decode($token, getenv('ACCESS_TOKEN_SECRET'), array('HS256'));
+            $decoded = new stdClass();
 
-            return $decoded;
-        }
-        catch (\Throwable $th) {
+            $decoded->userContext = JWT::decode($token, getenv('ACCESS_TOKEN_SECRET'), array('HS256'));
+            
+            $authorizationResult->status = 'succeed';
+            $authorizationResult->data = $decoded;
+            $authorizationResult->isValid = true;
+            
+            return $authorizationResult;
 
-            if($th->getMessage() == 'Malformed UTF-8 characters') {
+        } catch (\Throwable $th) {
+
+            if ($th->getMessage() == 'Malformed UTF-8 characters') {
 
                 throw new Exception('Invalid token');
             }
-            
+
             throw new Exception($th->getMessage());
         }
+    }
+}
+
+class AuthorizationResult {
+
+    public $status;
+    public $data;
+    public $isValid;
+
+    public function __construct($status = 'failure', $errorMessage = 'unauthorized', $isValid = false)
+    {
+        $this->status = $status;
+        $this->errorMessage = $errorMessage;
+        $this->isValid = $isValid;
     }
 }

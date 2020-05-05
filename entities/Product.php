@@ -1,8 +1,8 @@
 <?php
 require_once __DIR__ . '\..\repos\ProductsRepository.php';
 
-class Product {
-
+class Product
+{
     public $id;
     public $type;
     public $brand;
@@ -10,17 +10,18 @@ class Product {
     public $stock;
     public $image;
 
-    public function getImageName($image) {
+    public function getImageName($image)
+    {
 
-        if($image != null) {
-            
+        if ($image != null) {
+
             return getenv('DEFAULT_IMAGE_DIR') . $this->toFilename('.png');
         }
 
         return getenv('DEFAULT_IMAGE_DIR') . '\default_product.png';
     }
-
-    public function __construct($type, $brand, $price, $stock, $image, $id = null) {
+    public function __construct($type, $brand, $price, $stock, $image, $id = null)
+    {
 
         $this->id = ($id ?? strtotime('now'));
         $this->type = $type;
@@ -29,167 +30,147 @@ class Product {
         $this->stock = (int) $stock;
         $this->image = $this->getImageName($image);
     }
-
-    public function save() {
+    public function save()
+    {
 
         $filename = getenv('PRODUCTS_FILENAME');
         $ext = strtoupper(array_reverse(explode('.', $filename))[0]);
 
-        switch($ext)
-        {
+        switch ($ext) {
             case 'TXT':
                 ProductsRepository::saveSerialized($filename, $this);
-            break;
-     
+                break;
+
             case 'JSON':
                 ProductsRepository::saveJSON($filename, $this->toJSON());
-            break;
+                break;
 
             case 'CSV':
                 ProductsRepository::saveCSV($filename, $this->toCSV());
-            break;
+                break;
 
             default:
                 throw new Exception('Incompatible save type exception');
-            break;
+                break;
         }
     }
-    public function update($list) {
+    public function update($list)
+    {
 
         $filename = getenv('PRODUCTS_FILENAME');
         $ext = strtoupper(array_reverse(explode('.', $filename))[0]);
 
-        switch($ext)
-        {
+        switch ($ext) {
             case 'TXT':
                 ProductsRepository::updateSerialized($filename, $list);
-            break;
-     
+                break;
+
             case 'JSON':
                 ProductsRepository::updateJSON($filename, $list);
-            break;
+                break;
 
             case 'CSV':
                 ProductsRepository::updateCSV($filename, $list);
-            break;
+                break;
 
             default:
                 throw new Exception('Incompatible save type exception');
-            break;
+                break;
         }
-
     }
-    public static function getProductsList() {
+    public static function getProductsList()
+    {
 
         $filename = getenv('PRODUCTS_FILENAME');
         $ext = strtoupper(array_reverse(explode('.', $filename))[0]);
 
-        switch($ext)
-        {
-            case 'TXT':
-                $list = PersonasRepository::readSerialized($filename);
-            break;
-            
-            case 'JSON':
-                $list = PersonasRepository::readJSON($filename);
-            break;
-            
-            case 'CSV':
-                $list = PersonasRepository::readCSV($filename);
-            break;
-
-            default:
-                throw new Exception('Incompatible save type exception');
-            break;
-        }
-        
-        return $list;
-    }
-    public static function getProductById($productId) {
-
-        $filename = getenv('PRODUCTS_FILENAME');
-        $ext = strtoupper(array_reverse(explode('.', $filename))[0]);
-
-        switch($ext)
-        {
+        switch ($ext) {
             case 'TXT':
                 $list = ProductsRepository::readSerialized($filename);
-            break;
-            
+                break;
+
             case 'JSON':
                 $list = ProductsRepository::readJSON($filename);
-            break;
-            
+                break;
+
             case 'CSV':
                 $list = ProductsRepository::readCSV($filename);
-            break;
+                break;
 
             default:
                 throw new Exception('Incompatible save type exception');
-            break;
+                break;
         }
-        
+
+
+
+        return $list;
+    }
+    public static function getProductById($productId)
+    {
+
+        $filename = getenv('PRODUCTS_FILENAME');
+        $ext = strtoupper(array_reverse(explode('.', $filename))[0]);
+
+        switch ($ext) {
+            case 'TXT':
+                $list = ProductsRepository::readSerialized($filename);
+                break;
+
+            case 'JSON':
+                $list = ProductsRepository::readJSON($filename);
+                break;
+
+            case 'CSV':
+                $list = ProductsRepository::readCSV($filename);
+                break;
+
+            default:
+                throw new Exception('Incompatible save type exception');
+                break;
+        }
+
         foreach ($list as $product) {
 
             if ($product->id == $productId) {
-                
+
                 return $product;
             }
         }
         return false;
     }
-    public static function updateStock($productId, $stock) {
+    public static function updateStock($productId, $stock)
+    {
 
         $productList = self::getProductsList();
 
-        foreach($productList as $product) {
+        foreach ($productList as $product) {
 
-            if($product->id == $productId) {
+            if ($product->id == $productId) {
 
                 $product->stock = $stock;
+                $product->update($productList);
             }
         }
     }
-    public static function validate($productDto) {
-
-        $result = new ValidationResult();
-
-        foreach($productDto as $key => $value) {
-
-            if($value == null || $value == '')
-            {
-                $result->isValid = false;
-                $result->errorMessage = $key . ' is null or empty';
-                $result->status = 'failure';
-
-                return $result;
-            }
-        }
-
-        $result->isValid = true;
-        $result->errorMessage = null;
-        $result->status = 'succeed';
-
-        return $result;
-    }
-    public function toJSON() {
-        
+    public function toJSON()
+    {
         return json_encode($this);
     }
-    public function toCSV() {
-
-        return $this->id . ',' . 
-               $this->type . ',' . 
-               $this->brand . ',' . 
-               $this->price . ',' . 
-               $this->stock . ',' . 
-               $this->image . PHP_EOL; 
+    public function toCSV()
+    {
+        return $this->id . ',' .
+            $this->type . ',' .
+            $this->brand . ',' .
+            $this->price . ',' .
+            $this->stock . ',' .
+            $this->image . PHP_EOL;
     }
-    public function toFilename($ext) {
-
+    public function toFilename($ext)
+    {
         return '\\' . $this->type . '-' .
-                      $this->id . '-' .
-                      $this->brand . '-' .
-                      date("dmY_gia") . $ext;
+            $this->id . '-' .
+            $this->brand . '-' .
+            date("dmY_gia") . $ext;
     }
 }

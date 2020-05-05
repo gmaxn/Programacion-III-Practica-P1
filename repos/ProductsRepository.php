@@ -79,7 +79,22 @@ class ProductsRepository {
         $list = json_decode($stream);
         fclose($file);
 
-        return $list ?? false;
+        $array = array();
+        foreach($list as $product)
+        {
+            array_push($array, 
+            new Product(
+                $product->type, 
+                $product->brand, 
+                $product->price, 
+                $product->stock, 
+                $product->image, 
+                $product->id
+            ));
+
+        }
+
+        return $array ?? false;
     }
 
     public static function readCSV($filename) {
@@ -129,19 +144,7 @@ class ProductsRepository {
         return $result ?? false;
     }
 
-    public static function updateJSON($filename, $data) {
-
-        $list = array();
-
-        if (file_exists($filename)) {
-
-            $file = fopen($filename, 'r');
-            $stream = fread($file, filesize($filename));
-            $list = json_decode($stream);
-            fclose($file);
-        }
-        
-        array_push($list, json_decode($data));
+    public static function updateJSON($filename, $list) {
         
         $file = fopen($filename, 'w');
         $result = fwrite($file, json_encode($list));
