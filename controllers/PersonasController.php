@@ -11,7 +11,6 @@ class PersonasController
 
     function __construct()
     {
-
         $this->path_info = $_SERVER['PATH_INFO'] ?? '';
         $this->request_method = $_SERVER['REQUEST_METHOD'] ?? '';
     }
@@ -123,7 +122,6 @@ class PersonasController
     }
     private function loginValidation($email, $password)
     {
-
         $validationResults = array(
 
             Validator::emails($email),
@@ -131,6 +129,7 @@ class PersonasController
         );
 
         foreach ($validationResults as $result) {
+            
             if (!$result->isValid) {
                 return $result;
             }

@@ -1,8 +1,9 @@
 <?php
 
-class PersonasRepository {
-
-    public static function saveSerialized($filename, $data) {
+class PersonasRepository
+{
+    public static function saveSerialized($filename, $data)
+    {
         $list = array();
 
         if (file_exists($filename)) {
@@ -21,9 +22,8 @@ class PersonasRepository {
 
         return $result ?? false;
     }
-
-    public static function saveJSON($filename, $data) {
-
+    public static function saveJSON($filename, $data)
+    {
         $list = array();
 
         if (file_exists($filename)) {
@@ -33,28 +33,25 @@ class PersonasRepository {
             $list = json_decode($stream);
             fclose($file);
         }
-        
+
         array_push($list, json_decode($data));
-        
+
         $file = fopen($filename, 'w');
         $result = fwrite($file, json_encode($list));
         fclose($file);
-        
+
         return $result ?? false;
     }
-
-    public static function saveCSV($filename, $data) {
-
+    public static function saveCSV($filename, $data)
+    {
         $file = fopen($filename, 'a');
         $result = fwrite($file, $data);
         fclose($file);
         return $result ?? false;
     }
-
-    public static function readSerialized($filename) {
-
-        if(!file_exists($filename))
-        {
+    public static function readSerialized($filename)
+    {
+        if (!file_exists($filename)) {
             throw new Exception('File not found');
         }
 
@@ -65,10 +62,9 @@ class PersonasRepository {
 
         return $list ?? false;
     }
-
-    public static function readJSON($filename) {
-
-        if(!file_exists($filename)) {
+    public static function readJSON($filename)
+    {
+        if (!file_exists($filename)) {
 
             throw new Exception('File not found');
         }
@@ -80,10 +76,9 @@ class PersonasRepository {
 
         return $list ?? false;
     }
-
-    public static function readCSV($filename) {
-
-        if(!file_exists($filename)) {
+    public static function readCSV($filename)
+    {
+        if (!file_exists($filename)) {
 
             throw new Exception('File not found');
         }
@@ -91,20 +86,20 @@ class PersonasRepository {
         $dataSet = array();
         $file = fopen($filename, 'r');
 
-        while(!feof($file)) {
+        while (!feof($file)) {
 
             $row = fgets($file);
             $exploded = explode(',', $row);
 
             $i = 0;
-            foreach($exploded as $str) {
+            foreach ($exploded as $str) {
 
                 $exploded[$i] = trim($str);
                 $i++;
             }
-            
-            if($row != '') {
-                
+
+            if ($row != '') {
+
                 array_push($dataSet, $exploded);
             }
         }
@@ -115,12 +110,11 @@ class PersonasRepository {
 
         return $list;
     }
-
-    private static function rawCSVSerializer($dataSet) {
-
+    private static function rawCSVSerializer($dataSet)
+    {
         $result = array();
-        
-        foreach($dataSet as $data) {
+
+        foreach ($dataSet as $data) {
 
             $persona = new Persona(
                 $data[1],
@@ -135,7 +129,7 @@ class PersonasRepository {
 
             array_push($result, $persona);
         }
-
+        
         return $result;
     }
 }

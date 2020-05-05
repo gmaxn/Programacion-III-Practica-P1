@@ -80,7 +80,6 @@ class Product
     }
     public static function getProductsList()
     {
-
         $filename = getenv('PRODUCTS_FILENAME');
         $ext = strtoupper(array_reverse(explode('.', $filename))[0]);
 
@@ -102,13 +101,10 @@ class Product
                 break;
         }
 
-
-
         return $list;
     }
     public static function getProductById($productId)
     {
-
         $filename = getenv('PRODUCTS_FILENAME');
         $ext = strtoupper(array_reverse(explode('.', $filename))[0]);
 
@@ -137,11 +133,11 @@ class Product
                 return $product;
             }
         }
+
         return false;
     }
     public static function updateStock($productId, $stock)
     {
-
         $productList = self::getProductsList();
 
         foreach ($productList as $product) {

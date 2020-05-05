@@ -58,13 +58,12 @@ class Authentication
             $decoded = new stdClass();
 
             $decoded->userContext = JWT::decode($token, getenv('ACCESS_TOKEN_SECRET'), array('HS256'));
-            
+
             $authorizationResult->status = 'succeed';
             $authorizationResult->data = $decoded;
             $authorizationResult->isValid = true;
-            
-            return $authorizationResult;
 
+            return $authorizationResult;
         } catch (\Throwable $th) {
 
             if ($th->getMessage() == 'Malformed UTF-8 characters') {
@@ -76,9 +75,8 @@ class Authentication
         }
     }
 }
-
-class AuthorizationResult {
-
+class AuthorizationResult
+{
     public $status;
     public $data;
     public $isValid;
