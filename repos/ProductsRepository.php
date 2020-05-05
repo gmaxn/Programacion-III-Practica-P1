@@ -66,7 +66,6 @@ class ProductsRepository
     }
     public static function readJSON($filename)
     {
-
         if (!file_exists($filename)) {
 
             throw new Exception('File not found');
@@ -96,7 +95,6 @@ class ProductsRepository
     }
     public static function readCSV($filename)
     {
-
         if (!file_exists($filename)) {
 
             throw new Exception('File not found');
@@ -131,7 +129,6 @@ class ProductsRepository
     }
     public static function updateSerialized($filename, $list)
     {
-
         if (file_exists($filename)) {
 
             $file = fopen($filename, 'w');
@@ -143,7 +140,6 @@ class ProductsRepository
     }
     public static function updateJSON($filename, $list)
     {
-
         $file = fopen($filename, 'w');
         $result = fwrite($file, json_encode($list));
         fclose($file);
@@ -152,7 +148,6 @@ class ProductsRepository
     }
     public static function updateCSV($filename, $data)
     {
-
         $file = fopen($filename, 'a');
         $result = fwrite($file, $data);
         fclose($file);

@@ -74,7 +74,23 @@ class OrdersRepository
         $list = json_decode($stream);
         fclose($file);
 
-        return $list ?? false;
+        $array = array();
+        foreach ($list as $order) {
+            
+            array_push(
+                $array,
+                new Order(
+                    $order->userId,
+                    $order->orderItems = 
+                        new OrderItem(
+                            $order->orderItems->productId,
+                            $order->orderItems->productPrice, 
+                            $order->orderItems->qty),
+                    $order->orderId)
+            );
+        }
+
+        return $array ?? false;    
     }
     public static function readCSV($filename)
     {

@@ -74,6 +74,25 @@ class PersonasRepository
         $list = json_decode($stream);
         fclose($file);
 
+        $array = array();
+        foreach ($list as $persona) {
+            array_push(
+                $array,
+                new Persona(
+                    $persona->email,
+                    $persona->password,
+                    $persona->role,
+                    $persona->firstname,
+                    $persona->lastname,
+                    $persona->dni,
+                    $persona->healthInsurance,
+                    $persona->id
+                )
+            );
+        }
+
+        return $array ?? false;
+
         return $list ?? false;
     }
     public static function readCSV($filename)
